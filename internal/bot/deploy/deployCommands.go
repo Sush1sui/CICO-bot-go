@@ -40,6 +40,7 @@ var commandHandlers = map[string]func(s *discordgo.Session, i *discordgo.Interac
 	"generate-clock-channels": commands.GenerateClockChannels,
 	"delete-generated-channels": commands.DeleteGeneratedChannels,
 	"export-current-clock-records": commands.ExportCSVCommand,
+	"get-your-current-total-hours": commands.GetYourCurrentHours,
 }
 
 func DeployCommands(s *discordgo.Session) {

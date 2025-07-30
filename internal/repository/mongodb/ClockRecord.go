@@ -260,10 +260,38 @@ func (c *MongoClient) GetAllClockRecords() ([]*models.ClockRecordModel, error) {
 	return records, nil
 }
 
-func (c *MongoClient) RemoveClockRecord(userId string) (int, error) {
-	result, err := c.Client.DeleteOne(context.Background(), bson.M{"userId": userId})
+func (c *MongoClient) RemoveClockRecordOfThoseNotClockedIn() error {
+	// Find all clock records where clockInTime is nil or unset and clockOutTime exists
+	cursor, err := c.Client.Find(context.Background(), bson.M{
+		"clockInTime": nil,
+		"clockOutTime": bson.M{"$exists": true},
+	})
 	if err != nil {
-		return 0, fmt.Errorf("error removing clock record: %w", err)
+		return fmt.Errorf("error fetching clock records: %w", err)
 	}
-	return int(result.DeletedCount), nil
+	defer cursor.Close(context.Background())
+
+	var idsToDelete []bson.ObjectID
+	for cursor.Next(context.Background()) {
+		var record models.ClockRecordModel
+		if err := cursor.Decode(&record); err != nil {
+			return fmt.Errorf("error decoding clock record: %w", err)
+		}
+		idsToDelete = append(idsToDelete, record.ID)
+	}
+
+	if len(idsToDelete) == 0 {
+		fmt.Println("No clock records found to delete.")
+		return nil
+	}
+
+	// Delete all records with the collected IDs
+	filter := bson.M{"_id": bson.M{"$in": idsToDelete}}
+	result, err := c.Client.DeleteMany(context.Background(), filter)
+	if err != nil {
+		return fmt.Errorf("error deleting clock records: %w", err)
+	}
+
+	fmt.Printf("Deleted %d clock records that were not clocked in.\n", result.DeletedCount)
+	return nil
 }
