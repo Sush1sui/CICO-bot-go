@@ -260,6 +260,43 @@ func (c *MongoClient) GetAllClockRecords() ([]*models.ClockRecordModel, error) {
 	return records, nil
 }
 
+func (c *MongoClient) ReClockUser(userId string) (*models.ClockRecordModel, error) {
+    var record models.ClockRecordModel
+    err := c.Client.FindOne(context.Background(), bson.M{"userId": userId}).Decode(&record)
+    if err != nil {
+        return nil, fmt.Errorf("error fetching clock record: %w", err)
+    }
+
+    if record.ClockInTime == nil || record.ClockInTime.IsZero() {
+        return nil, fmt.Errorf("user %s is not clocked in", userId)
+    }
+
+    clockInTime := time.Now()
+    timeSinceClockIn := clockInTime.Sub(*record.ClockInTime).Hours()
+    totalHours := timeSinceClockIn
+    if record.TotalHours != nil {
+        totalHours += *record.TotalHours
+    }
+
+    update := bson.M{
+        "$set": bson.M{
+            "clockInTime": clockInTime,
+            "totalHours":  totalHours,
+        },
+    }
+    _, err = c.Client.UpdateByID(context.Background(), record.ID, update)
+    if err != nil {
+        return nil, fmt.Errorf("error updating clock record: %w", err)
+    }
+
+    // Fetch and return the updated record
+    err = c.Client.FindOne(context.Background(), bson.M{"_id": record.ID}).Decode(&record)
+    if err != nil {
+        return nil, fmt.Errorf("error fetching updated clock record: %w", err)
+    }
+    return &record, nil
+}
+
 func (c *MongoClient) RemoveClockRecordOfThoseNotClockedIn() error {
 	// Find all clock records where clockInTime is nil or unset and clockOutTime exists
 	cursor, err := c.Client.Find(context.Background(), bson.M{

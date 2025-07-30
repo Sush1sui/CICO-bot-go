@@ -86,7 +86,6 @@ func ExportEveryWednesday(s *discordgo.Session) {
 				fmt.Println("Failed to remove CSV file:", err)
 			}
 
-
 			err = repository.ClockRecordService.RemoveClockRecordOfThoseNotClockedIn()
 			if err != nil {
 				fmt.Println("Failed to remove clock records:", err)

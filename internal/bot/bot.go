@@ -8,6 +8,7 @@ import (
 	"syscall"
 
 	"github.com/Sush1sui/cico-bot-go/internal/bot/deploy"
+	"github.com/Sush1sui/cico-bot-go/internal/common"
 	"github.com/Sush1sui/cico-bot-go/internal/config"
 	"github.com/bwmarrin/discordgo"
 )
@@ -40,6 +41,9 @@ func StartBot() {
 
 	deploy.DeployCommands(s)
 	deploy.DeployEvents(s)
+
+	common.ExportEveryWednesday(s)
+	common.InitializeClockIn(s)
 	
 	fmt.Println("Bot is now running")
 

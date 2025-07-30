@@ -12,6 +12,7 @@ type ClockRecordInterface interface {
 	HandleIfExpiredClock(s *discordgo.Session, userId, roleId string) bool
 	GetUserClockRecord(userId string) (*models.ClockRecordModel, error)
 	GetAllClockRecords() ([]*models.ClockRecordModel, error)
+	ReClockUser(userId string) (*models.ClockRecordModel, error)
 	RemoveClockRecordOfThoseNotClockedIn() error
 }
 
