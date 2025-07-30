@@ -20,8 +20,11 @@ type Config struct {
 	MongoDB_Clock_Records_Name string
 	TL_ROLE_ID string
 	CHATTER_ROLE_ID string
+	TimeLimit map[string]float64
 	GuildID string
+	ServerURL string
 	AdminChannelID string
+	ClockInRoleID string
 }
 
 var GlobalConfig *Config
@@ -32,6 +35,10 @@ func New() (error) {
 	port := os.Getenv("PORT")
 	if port == "" {
 		port = "8169"
+	}
+	serverUrl := os.Getenv("SERVER_URL")
+	if serverUrl == "" {
+		fmt.Println("SERVER_URL is not set")
 	}
 	botToken := os.Getenv("BOT_TOKEN")
 	if botToken == "" {
@@ -75,8 +82,14 @@ func New() (error) {
 		MongoDB_Clock_Records_Name: mongoDB_Clock_Records_Name,
 		TL_ROLE_ID: tlRoleID,
 		CHATTER_ROLE_ID: chatterRoleID,
+		TimeLimit: map[string]float64{
+			tlRoleID:      12.25, // 12 hours 15 minutes
+			chatterRoleID: 16.25, // 16 hours 15 minutes
+		},
 		GuildID: guildID,
+		ServerURL: serverUrl,
 	}
+	fmt.Println("Config initialized successfully")
 	return nil
 }
 

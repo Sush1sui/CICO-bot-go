@@ -25,7 +25,7 @@ func StartBot() {
 			Status: "idle",
 			Activities: []*discordgo.Activity{
 				{
-					Name: "to Clock in Clock outs",
+					Name: "Clock in Clock outs",
 					Type: discordgo.ActivityTypeListening,
 				},
 			},

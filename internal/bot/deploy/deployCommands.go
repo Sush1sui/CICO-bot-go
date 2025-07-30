@@ -4,6 +4,7 @@ import (
 	"fmt"
 	"log"
 
+	"github.com/Sush1sui/cico-bot-go/internal/bot/commands"
 	"github.com/Sush1sui/cico-bot-go/internal/config"
 	"github.com/bwmarrin/discordgo"
 )
@@ -29,14 +30,16 @@ var slashCommands = []*discordgo.ApplicationCommand{
 	},
 	{
 		Name: "get-your-current-total-hours",
-		Description: "Retrieves your current total clocked hours for this week + your total hours for today (If you clocked in today)",
+		Description: "Shows your total clocked hours for this week and today (if you clocked in today)",
 		Type: discordgo.ChatApplicationCommand,
 	},
 
 }
 
 var commandHandlers = map[string]func(s *discordgo.Session, i *discordgo.InteractionCreate){
-
+	"generate-clock-channels": commands.GenerateClockChannels,
+	"delete-generated-channels": commands.DeleteGeneratedChannels,
+	"export-current-clock-records": commands.ExportCSVCommand,
 }
 
 func DeployCommands(s *discordgo.Session) {

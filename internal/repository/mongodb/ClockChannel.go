@@ -43,3 +43,10 @@ func (c *MongoClient) CreateClockChannelInterface(categoryId, clockInChannelId, 
 	}
 	return clockChannels, nil
 }
+
+func (c *MongoClient) DeleteAllClockChannelInterface() error {
+	if _, err := c.Client.DeleteMany(context.Background(), bson.M{}); err != nil {
+		return fmt.Errorf("failed to delete all clock channels: %w", err)
+	}
+	return nil
+}

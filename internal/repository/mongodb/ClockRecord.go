@@ -13,11 +13,6 @@ import (
 	"go.mongodb.org/mongo-driver/v2/mongo"
 )
 
-var roleTimeLimits = map[string]float64{
-	config.GlobalConfig.TL_ROLE_ID:      12.25, // 12 hours 15 minutes
-	config.GlobalConfig.CHATTER_ROLE_ID:  16.25, // 16 hours 15 minutes
-}
-
 func (c *MongoClient) ClockIn(userId string) (*models.ClockRecordModel, error) {
 	clockInTime := time.Now()
 	
@@ -38,8 +33,8 @@ func (c *MongoClient) ClockIn(userId string) (*models.ClockRecordModel, error) {
 		update := bson.M{
 			"$set": bson.M{
 				"clockInTime": clockInTime,
-				"clockOutTime": nil,
 			},
+			"$unset": bson.M{"clockOutTime": ""},
 		}
 
 		_, err := c.Client.UpdateByID(context.Background(), existingRecord.ID, update)
@@ -75,7 +70,7 @@ func (c *MongoClient) ClockOut(userId string) (*models.ClockRecordModel, error) 
 	var existingRecord models.ClockRecordModel
 	err := c.Client.FindOne(context.Background(), bson.M{
 		"userId": userId,
-		"clockOutTime": bson.M{"$exists": false},
+		"clockOutTime": nil,
 	}).Decode(&existingRecord)
 	if err != nil {
 		if err == mongo.ErrNoDocuments {
@@ -97,8 +92,8 @@ func (c *MongoClient) ClockOut(userId string) (*models.ClockRecordModel, error) 
 		"$set": bson.M{
 			"clockOutTime": &clockOutTime,
 			"totalHours":   totalHours,
-			"clockInTime": nil, // reset clockInTime
 		},
+		"$unset": bson.M{"clockInTime": ""},
 	}
 
 	_, err = c.Client.UpdateByID(context.Background(), existingRecord.ID, update)
@@ -195,7 +190,7 @@ func (c *MongoClient) HandleIfExpiredClock(s *discordgo.Session, userId, roleId 
 		return false
 	}
 
-	timeLimit, exists := roleTimeLimits[roleId]
+	timeLimit, exists := config.GlobalConfig.TimeLimit[roleId]
 	if !exists {
 		fmt.Printf("No time limit found for role %s\n", roleId)
 		return false
@@ -208,8 +203,8 @@ func (c *MongoClient) HandleIfExpiredClock(s *discordgo.Session, userId, roleId 
 		_, err = c.Client.UpdateOne(context.Background(), bson.M{"userId": userId}, bson.M{
 			"$set": bson.M{
 				"clockOutTime": &clockOutTime,
-				"clockInTime": nil, // Reset clockInTime
 			},
+			"$unset": bson.M{"clockInTime": ""},
 		})
 		if err != nil {
 			fmt.Printf("Error updating clock record for user %s: %v\n", userId, err)
