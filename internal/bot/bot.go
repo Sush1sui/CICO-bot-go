@@ -44,6 +44,7 @@ func StartBot() {
 
 	common.ExportEveryWednesday(s)
 	common.InitializeClockIn(s)
+	common.CheckForExpiredClock(s)
 	
 	fmt.Println("Bot is now running")
 
