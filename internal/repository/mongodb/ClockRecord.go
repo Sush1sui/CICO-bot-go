@@ -166,6 +166,11 @@ func (c *MongoClient) HandleIfExpiredClock(s *discordgo.Session, userId, roleId 
 		return  false
 	}
 
+	if userRecord.ClockInTime == nil || userRecord.ClockInTime.IsZero() {
+		fmt.Printf("User %s has no valid clockInTime\n", userId)
+		return false
+	}
+
 	totalHours := time.Since(*userRecord.ClockInTime).Hours()
 	guild, err := s.State.Guild(config.GlobalConfig.GuildID)
 	if err != nil {
