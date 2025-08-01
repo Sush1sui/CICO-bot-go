@@ -2,7 +2,9 @@ package events
 
 import (
 	"fmt"
+	"os"
 	"slices"
+	"strings"
 	"time"
 
 	"github.com/Sush1sui/cico-bot-go/internal/config"
@@ -39,6 +41,9 @@ func OnClockOut(s *discordgo.Session, i *discordgo.InteractionCreate) {
 	clockOutTime := time.Now()
 	err := s.GuildMemberRoleRemove(i.GuildID, i.Member.User.ID, config.GlobalConfig.ClockInRoleID)
 	if err != nil {
+		if strings.Contains(err.Error(), "rate limit") || strings.Contains(err.Error(), "429") {
+			os.WriteFile("rate_limited_marker", []byte("rate limited"), 0644)
+		}
 		m := "Error removing clock in role. Please try again later or message <@982491279369830460>." // its ya boi sush1sui
 		s.InteractionResponseEdit(i.Interaction, &discordgo.WebhookEdit{Content: &m})
 		return

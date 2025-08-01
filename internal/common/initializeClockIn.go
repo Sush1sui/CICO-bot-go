@@ -2,13 +2,33 @@ package common
 
 import (
 	"fmt"
+	"os"
 	"strings"
 
 	"github.com/Sush1sui/cico-bot-go/internal/repository"
 	"github.com/bwmarrin/discordgo"
 )
 
-func InitializeClockIn(s *discordgo.Session) {
+func InitializeClockInIfUnexpected(s *discordgo.Session) {
+	const markerFile = "shutdown_marker"
+	const rateLimitedMarkerFile = "rate_limited_marker"
+	// if merker file does not exist, its an unexpected shutdown
+	if _, err := os.Stat(markerFile); os.IsNotExist(err) {
+		initializeClockIn(s)
+	} else if _, err := os.Stat(rateLimitedMarkerFile); os.IsNotExist(err) {
+		initializeClockIn(s)
+	}
+	
+	os.Remove(markerFile)
+	os.Remove(rateLimitedMarkerFile)
+}
+
+func MarkGracefulShutdown() {
+	const markerFile = "shutdown_marker"
+	os.WriteFile(markerFile, []byte("shutdown"), 0644)
+}
+
+func initializeClockIn(s *discordgo.Session) {
 	allRecords, err := repository.ClockRecordService.GetAllClockRecords()
 	if err != nil {
 		s.ChannelMessageSend("error-channel-id", "Error fetching clock records: "+err.Error())

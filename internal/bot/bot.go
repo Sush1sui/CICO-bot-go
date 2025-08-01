@@ -3,9 +3,6 @@ package bot
 import (
 	"fmt"
 	"log"
-	"os"
-	"os/signal"
-	"syscall"
 
 	"github.com/Sush1sui/cico-bot-go/internal/bot/deploy"
 	"github.com/Sush1sui/cico-bot-go/internal/common"
@@ -43,13 +40,8 @@ func StartBot() {
 	deploy.DeployEvents(s)
 
 	common.ExportEveryWednesday(s)
-	common.InitializeClockIn(s)
+	common.InitializeClockInIfUnexpected(s)
 	common.CheckForExpiredClock(s)
 	
 	fmt.Println("Bot is now running")
-
-	sc := make(chan os.Signal, 1)
-	signal.Notify(sc, syscall.SIGINT, syscall.SIGTERM, os.Interrupt)
-	<-sc
-	fmt.Println("Shutting down bot gracefully...")
 }

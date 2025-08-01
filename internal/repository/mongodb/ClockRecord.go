@@ -3,7 +3,9 @@ package mongodb
 import (
 	"context"
 	"fmt"
+	"os"
 	"slices"
+	"strings"
 	"time"
 
 	"github.com/Sush1sui/cico-bot-go/internal/config"
@@ -211,13 +213,23 @@ func (c *MongoClient) HandleIfExpiredClock(s *discordgo.Session, userId, roleId 
 			return false
 		}
 
+		// remove the role from the user
+		err = s.GuildMemberRoleRemove(config.GlobalConfig.GuildID, userId, roleId)
+		if err != nil {
+			if strings.Contains(err.Error(), "rate limit") || strings.Contains(err.Error(), "429") {
+				os.WriteFile("rate_limited_marker", []byte("rate limited"), 0644)
+			}
+			fmt.Printf("Error removing role %s from user %s: %v\n", roleId, userId, err)
+			return false
+		}
+
 		adminChannel, err := s.State.Channel(config.GlobalConfig.AdminChannelID)
 		if err != nil {
 			fmt.Printf("Error fetching admin channel: %v\n", err)
 			return false
 		}
 
-		_, err = s.ChannelMessageSend(adminChannel.ID, fmt.Sprintf("⚠️ <@%s> has exceeded the time limit of %.2f hours for role %s. Clocking out now.", userId, timeLimit, roleId))
+		_, err = s.ChannelMessageSend(adminChannel.ID, fmt.Sprintf("⚠️ <@%s> has exceeded the time limit of %.2f hours. Clocking out now.", userId, timeLimit))
 		if err != nil {
 			fmt.Printf("Error sending message to admin channel: %v\n", err)
 			return false
