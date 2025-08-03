@@ -219,12 +219,12 @@ func (c *MongoClient) HandleIfExpiredClock(s *discordgo.Session, userId, roleId 
 		}
 
 		// remove the role from the user
-		err = s.GuildMemberRoleRemove(config.GlobalConfig.GuildID, userId, roleId)
+		err = s.GuildMemberRoleRemove(config.GlobalConfig.GuildID, userId, config.GlobalConfig.ClockInRoleID)
 		if err != nil {
 			if strings.Contains(err.Error(), "rate limit") || strings.Contains(err.Error(), "429") {
 				os.WriteFile("rate_limited_marker", []byte("rate limited"), 0644)
 			}
-			fmt.Printf("Error removing role %s from user %s: %v\n", roleId, userId, err)
+			fmt.Printf("Error removing role %s from user %s: %v\n", config.GlobalConfig.ClockInRoleID, userId, err)
 			return false
 		}
 

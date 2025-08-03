@@ -11,6 +11,7 @@ import (
 func CheckForExpiredClock(s *discordgo.Session) error {
 	for {
 		time.Sleep(20 * time.Minute)
+		fmt.Println("Checking for expired clock records...")
 		err := repository.ClockRecordService.CheckForExpiredClock(s)
 		if err != nil {
 			fmt.Printf("Error checking for expired clock: %v\n", err)
