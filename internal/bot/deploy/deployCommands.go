@@ -33,7 +33,12 @@ var slashCommands = []*discordgo.ApplicationCommand{
 		Description: "Shows your total clocked hours for this week and today (if you clocked in today)",
 		Type: discordgo.ChatApplicationCommand,
 	},
-
+	{
+		Name: "export-csv-reset-clocks",
+		Description: "Exports the current clock records to a CSV file and resets the clocks",
+		Type: discordgo.ChatApplicationCommand,
+		DefaultMemberPermissions: func() *int64 { p := int64(discordgo.PermissionAdministrator); return &p }(),
+	},
 }
 
 var commandHandlers = map[string]func(s *discordgo.Session, i *discordgo.InteractionCreate){
@@ -41,6 +46,7 @@ var commandHandlers = map[string]func(s *discordgo.Session, i *discordgo.Interac
 	"delete-generated-channels": commands.DeleteGeneratedChannels,
 	"export-current-clock-records": commands.ExportCSVCommand,
 	"get-your-current-total-hours": commands.GetYourCurrentHours,
+	"export-csv-reset-clocks": commands.ExportCSVWithResetDatabaseCommand,
 }
 
 func DeployCommands(s *discordgo.Session) {

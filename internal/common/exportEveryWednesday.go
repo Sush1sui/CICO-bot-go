@@ -38,61 +38,68 @@ func ExportEveryWednesday(s *discordgo.Session) {
 
 			time.Sleep(timeUntilExport)
 
-			// export to CSV
-			fmt.Println("Starting CSV export...")
-			filePath, err := ExportToCSV(s)
-			if err != nil || filePath == "" {
-				fmt.Printf("Failed to export to CSV: %v\n", err)
+			err := ExportToCSV_CLEAN_DATABASE(s)
+			if err != nil {
+				fmt.Printf("Error during CSV export: %v\n", err)
 				continue
 			}
-			fmt.Printf("CSV exported successfully to: %s\n", filePath)
-
-			// send the CSV file to the admin channel
-			file, err := os.Open(filePath)
-			if err != nil {
-				fmt.Printf("Failed to open CSV file: %v\n", err)
-				continue
-			}
-			attachment := &discordgo.File{
-				Name:        filepath.Base(filePath),
-				ContentType: "text/csv",
-				Reader:      file,
-			}
-
-			member, err := s.State.Member(config.GlobalConfig.GuildID, "608646101712502825")
-			if err != nil {
-				fmt.Printf("Failed to fetch member: %v\n", err)
-			}
-			if member != nil {
-				s.ChannelMessageSendComplex(config.GlobalConfig.AdminChannelID, &discordgo.MessageSend{
-					Content: "📊 Weekly clock records exported successfully! Here is the file:",
-					Files:   []*discordgo.File{attachment},
-				})
-			} else {
-				fmt.Println("Member not found, sending without mention.")
-			}
-			
-			_, err = s.ChannelMessageSendComplex(config.GlobalConfig.AdminChannelID, &discordgo.MessageSend{
-				Content: "📊 Weekly clock records exported successfully! Here is the file:",
-				Files:   []*discordgo.File{attachment},
-			})
-			if err != nil {
-				fmt.Printf("Failed to send CSV file: %v\n", err)
-			}
-
-			file.Close()
-			err = os.Remove(filePath)
-			if err != nil {
-				fmt.Println("Failed to remove CSV file:", err)
-			}
-
-			err = repository.ClockRecordService.RemoveClockRecordOfThoseNotClockedIn()
-			if err != nil {
-				fmt.Println("Failed to remove clock records:", err)
-			}
-
-			fmt.Println("Clock records cleaned up successfully.")
 		}
 	}()
 	fmt.Println("Weekly CSV export started initialized.")
+}
+
+func ExportToCSV_CLEAN_DATABASE(s *discordgo.Session) (error) {
+	// export to CSV
+	fmt.Println("Starting CSV export...")
+	filePath, err := ExportToCSV(s)
+	if err != nil || filePath == "" {
+		return fmt.Errorf("failed to export to CSV: %v", err)
+	}
+	fmt.Printf("CSV exported successfully to: %s\n", filePath)
+
+	// send the CSV file to the admin channel
+	file, err := os.Open(filePath)
+	if err != nil {
+		return fmt.Errorf("failed to open CSV file: %v", err)
+	}
+	attachment := &discordgo.File{
+		Name:        filepath.Base(filePath),
+		ContentType: "text/csv",
+		Reader:      file,
+	}
+
+	member, err := s.State.Member(config.GlobalConfig.GuildID, "608646101712502825")
+	if err != nil {
+		fmt.Printf("Failed to fetch member: %v\n", err)
+	}
+	if member != nil {
+		s.ChannelMessageSendComplex(config.GlobalConfig.AdminChannelID, &discordgo.MessageSend{
+			Content: "📊 Weekly clock records exported successfully! Here is the file:",
+			Files:   []*discordgo.File{attachment},
+		})
+	} else {
+		fmt.Println("Member not found, sending without mention.")
+	}
+	
+	_, err = s.ChannelMessageSendComplex(config.GlobalConfig.AdminChannelID, &discordgo.MessageSend{
+		Content: "📊 Weekly clock records exported successfully! Here is the file:",
+		Files:   []*discordgo.File{attachment},
+	})
+	if err != nil {
+		fmt.Printf("Failed to send CSV file: %v\n", err)
+	}
+
+	file.Close()
+	err = os.Remove(filePath)
+	if err != nil {
+		fmt.Println("Failed to remove CSV file:", err)
+	}
+
+	err = repository.ClockRecordService.RemoveClockRecordOfThoseNotClockedIn()
+	if err != nil {
+		fmt.Println("Failed to remove clock records:", err)
+	}
+
+	fmt.Println("Clock records cleaned up successfully.")
+	return nil
 }
