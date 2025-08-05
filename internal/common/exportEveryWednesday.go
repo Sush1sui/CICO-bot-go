@@ -59,7 +59,7 @@ func ExportEveryWednesday(s *discordgo.Session) {
 				Reader:      file,
 			}
 
-			member, err := s.State.Member(config.GlobalConfig.GuildID, "1387738107675410515")
+			member, err := s.State.Member(config.GlobalConfig.GuildID, "608646101712502825")
 			if err != nil {
 				fmt.Printf("Failed to fetch member: %v\n", err)
 			}

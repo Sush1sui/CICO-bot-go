@@ -48,7 +48,7 @@ func initializeClockIn(s *discordgo.Session) {
 		userMentions = append(userMentions, "<@"+record.UserID+">")
 	}
 	if len(userMentions) > 0 {
-		_, err := s.ChannelMessageSend("1355806810778636419", fmt.Sprintf("# Bot restarted\n\n%s\n\n**If you can't clock out while the bot is offline, you can clock out now.**", strings.Join(userMentions, ", ")))
+		_, err := s.ChannelMessageSend("1312604320650235952", fmt.Sprintf("# Bot restarted\n\n%s\n\n**If you can't clock out while the bot is offline, you can clock out now.**", strings.Join(userMentions, ", ")))
 		if err != nil {
 			fmt.Println("Error sending message:", err)
 		}
