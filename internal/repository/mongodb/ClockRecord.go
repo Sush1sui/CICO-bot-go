@@ -315,6 +315,14 @@ func (c *MongoClient) ReClockUser(userId string) (*models.ClockRecordModel, erro
 }
 
 func (c *MongoClient) RemoveClockRecordOfThoseNotClockedIn() error {
+	// First, reset totalHours to 0 for all records in the collection
+    update := bson.M{"$set": bson.M{"totalHours": 0}}
+    updateResult, err := c.Client.UpdateMany(context.Background(), bson.M{}, update)
+    if err != nil {
+        return fmt.Errorf("error resetting totalHours for all records: %w", err)
+    }
+    fmt.Printf("Reset totalHours to 0 for %d records.\n", updateResult.ModifiedCount)
+
 	// Find all clock records where clockInTime is nil or unset and clockOutTime exists
 	cursor, err := c.Client.Find(context.Background(), bson.M{
 		"clockInTime": nil,
