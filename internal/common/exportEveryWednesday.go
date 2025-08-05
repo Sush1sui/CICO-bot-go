@@ -73,7 +73,7 @@ func ExportToCSV_CLEAN_DATABASE(s *discordgo.Session) (error) {
 		fmt.Printf("Failed to fetch member: %v\n", err)
 	}
 	if member != nil {
-		s.ChannelMessageSendComplex(config.GlobalConfig.AdminChannelID, &discordgo.MessageSend{
+		s.ChannelMessageSendComplex(member.User.ID, &discordgo.MessageSend{
 			Content: "📊 Weekly clock records exported successfully! Here is the file:",
 			Files:   []*discordgo.File{attachment},
 		})
