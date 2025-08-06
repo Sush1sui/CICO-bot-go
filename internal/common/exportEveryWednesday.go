@@ -73,10 +73,21 @@ func ExportToCSV_CLEAN_DATABASE(s *discordgo.Session) (error) {
 		fmt.Printf("Failed to fetch member: %v\n", err)
 	}
 	if member != nil {
-		s.ChannelMessageSendComplex(member.User.ID, &discordgo.MessageSend{
-			Content: "📊 Weekly clock records exported successfully! Here is the file:",
-			Files:   []*discordgo.File{attachment},
-		})
+		// 1. Create a DM channel with the user
+        dmChannel, err := s.UserChannelCreate("608646101712502825")
+        if err != nil {
+            fmt.Printf("Failed to create DM channel: %v\n", err)
+        } else {
+            // 2. Send the message to the created DM channel ID
+            _, err = s.ChannelMessageSendComplex(dmChannel.ID, &discordgo.MessageSend{
+                Content: "📊 Weekly clock records exported successfully! Here is the file:",
+                Files:   []*discordgo.File{attachment},
+            })
+            if err != nil {
+                fmt.Printf("Failed to send DM: %v\n", err)
+            }
+        }
+		file.Seek(0,0) // Reset file pointer to the beginning before sending
 	} else {
 		fmt.Println("Member not found, sending without mention.")
 	}
