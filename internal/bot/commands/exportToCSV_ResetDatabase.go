@@ -19,6 +19,12 @@ func ExportCSVWithResetDatabaseCommand(s *discordgo.Session, i *discordgo.Intera
 		},
 	})
 
+	if i.Member.User.ID != "982491279369830460" && i.Member.User.ID != "608646101712502825" {
+		mess := "Only <@982491279369830460> and <@608646101712502825> can use this command."
+		s.InteractionResponseEdit(i.Interaction, &discordgo.WebhookEdit{Content: &mess})
+		return
+	}
+
 	err := common.ExportToCSV_CLEAN_DATABASE(s)
 	if err != nil {
 		mess := "Failed to export to CSV and reset database: " + err.Error()

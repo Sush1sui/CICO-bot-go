@@ -37,7 +37,6 @@ var slashCommands = []*discordgo.ApplicationCommand{
 		Name: "export-csv-reset-clocks",
 		Description: "Exports the current clock records to a CSV file and resets the clocks",
 		Type: discordgo.ChatApplicationCommand,
-		DefaultMemberPermissions: func() *int64 { p := int64(discordgo.PermissionAdministrator); return &p }(),
 	},
 }
 
