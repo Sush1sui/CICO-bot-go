@@ -49,17 +49,9 @@ func OnClockOut(s *discordgo.Session, i *discordgo.InteractionCreate) {
 		return
 	}
 
-	s.ChannelMessageSendComplex(config.GlobalConfig.AdminChannelID, &discordgo.MessageSend{
-		Embed: &discordgo.MessageEmbed{
-			Title:       "User Clocked Out",
-			Description: "<@" + i.Member.User.ID + "> has clocked out.",
-			Color:      0xFF0000,
-			Footer: &discordgo.MessageEmbedFooter{
-				Text: "Time Tracking Bot",
-			},
-			Timestamp: clockOutTime.Format(time.RFC3339),
-		},
-	})
+	// Log the clock-out to the admin channel using the new format
+    logMessage := fmt.Sprintf("🔴 <@%s> has clocked out at <t:%d:F>", i.Member.User.ID, clockOutTime.Unix())
+    s.ChannelMessageSend(config.GlobalConfig.AdminChannelID, logMessage)
 
 	_, err = repository.ClockRecordService.ClockOut(i.Member.User.ID)
 	if err != nil {

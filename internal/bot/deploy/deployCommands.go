@@ -38,6 +38,19 @@ var slashCommands = []*discordgo.ApplicationCommand{
 		Description: "Exports the current clock records to a CSV file and resets the clocks",
 		Type: discordgo.ChatApplicationCommand,
 	},
+	{
+		Name: "read-old-logs",
+		Description: "Reads old logs from the database",
+		Type: discordgo.ChatApplicationCommand,
+		Options: []*discordgo.ApplicationCommandOption{
+			{
+				Name:        "start-msg-id",
+				Description: "The starting message ID to read logs from",
+				Type:       discordgo.ApplicationCommandOptionString,
+				Required:   true,
+			},
+		},
+	},
 }
 
 var commandHandlers = map[string]func(s *discordgo.Session, i *discordgo.InteractionCreate){
@@ -46,6 +59,7 @@ var commandHandlers = map[string]func(s *discordgo.Session, i *discordgo.Interac
 	"export-current-clock-records": commands.ExportCSVCommand,
 	"get-your-current-total-hours": commands.GetYourCurrentHours,
 	"export-csv-reset-clocks": commands.ExportCSVWithResetDatabaseCommand,
+	"read-old-logs": commands.ReadOldLogs,
 }
 
 func DeployCommands(s *discordgo.Session) {

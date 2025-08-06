@@ -49,17 +49,9 @@ func OnClockIn(s *discordgo.Session, i *discordgo.InteractionCreate) {
 		return
 	}
 
-	s.ChannelMessageSendComplex(config.GlobalConfig.AdminChannelID, &discordgo.MessageSend{
-		Embed: &discordgo.MessageEmbed{
-			Title:       "User Clocked In",
-			Description: fmt.Sprintf("<@%s> has clocked in.", i.Member.User.ID),
-			Color:      0x00FF00,
-			Footer: &discordgo.MessageEmbedFooter{
-				Text: "Time Tracking Bot",
-			},
-			Timestamp: clockInTime.Format(time.RFC3339),
-		},
-	})
+	// Log the clock-in to the admin channel using the new format
+    logMessage := fmt.Sprintf("🟢 <@%s> has clocked in at <t:%d:F>", i.Member.User.ID, clockInTime.Unix())
+    s.ChannelMessageSend(config.GlobalConfig.AdminChannelID, logMessage)
 
 	_, err = repository.ClockRecordService.ClockIn(i.Member.User.ID)
 	if err != nil {
