@@ -83,8 +83,8 @@ func New() (error) {
 		TL_ROLE_ID: tlRoleID,
 		CHATTER_ROLE_ID: chatterRoleID,
 		TimeLimit: map[string]float64{
-			tlRoleID:      12.25, // 12 hours 15 minutes
-			chatterRoleID: 16.25, // 16 hours 15 minutes
+			tlRoleID:      17.25, // 17 hours 15 minutes
+			chatterRoleID: 17.25, // 17 hours 15 minutes
 		},
 		GuildID: guildID,
 		ServerURL: serverUrl,
