@@ -32,7 +32,9 @@ func ExportToCSV(s *discordgo.Session) (string, error) {
 	}
 	guildMembers := make(map[string]string)
 	for _, member := range guild.Members {
-		guildMembers[member.User.ID] = member.User.Username
+		if member != nil && member.User != nil {
+			guildMembers[member.User.ID] = member.User.Username
+		}
 	}
 
 	for _, record := range records {

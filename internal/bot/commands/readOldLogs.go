@@ -39,6 +39,13 @@ func ReadOldLogs(s *discordgo.Session, i *discordgo.InteractionCreate) {
         return
     }
 
+    // Check if options are provided
+    if len(i.ApplicationCommandData().Options) == 0 {
+        mess := "Please provide a start message ID."
+        s.InteractionResponseEdit(i.Interaction, &discordgo.WebhookEdit{Content: &mess})
+        return
+    }
+
     startOfMessageId := i.ApplicationCommandData().Options[0].StringValue()
     if startOfMessageId == "" {
         mess := "Please provide a valid start message ID."

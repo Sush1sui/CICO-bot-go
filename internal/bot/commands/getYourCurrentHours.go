@@ -40,6 +40,13 @@ func GetYourCurrentHours(s *discordgo.Session, i *discordgo.InteractionCreate) {
 		return
 	}
 
+	// Check if ClockInTime is valid before dereferencing
+	if clockRecord.ClockInTime == nil || clockRecord.ClockInTime.IsZero() {
+		mess := "You are not currently clocked in. Your total hours: *" + strconv.Itoa(int(*clockRecord.TotalHours)) + " hours.*"
+		s.InteractionResponseEdit(i.Interaction, &discordgo.WebhookEdit{Content: &mess})
+		return
+	}
+
 	timeSince := time.Since(*clockRecord.ClockInTime).Hours()
 	mess := "**Hours count since your last clock in:** *" + strconv.Itoa(int(timeSince)) + " hours.*\n" +
 		"**Total hours (not including today):** *" + strconv.Itoa(int(*clockRecord.TotalHours)) + " hours.*\n" +

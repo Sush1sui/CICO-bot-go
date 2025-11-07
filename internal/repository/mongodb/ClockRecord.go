@@ -27,7 +27,7 @@ func (c *MongoClient) ClockIn(userId string) (*models.ClockRecordModel, error) {
 	// if record exists
 	if err == nil {
 		// if already clocked in
-		if !existingRecord.ClockOutTime.IsZero() && (existingRecord.ClockOutTime == nil || existingRecord.ClockOutTime.IsZero()) {
+		if existingRecord.ClockInTime != nil && !existingRecord.ClockInTime.IsZero() && (existingRecord.ClockOutTime == nil || existingRecord.ClockOutTime.IsZero()) {
 			return nil, fmt.Errorf("user %s is already clocked in", userId)
 		}
 
@@ -129,7 +129,9 @@ func (c *MongoClient) CheckForExpiredClock(s *discordgo.Session) error {
 	// build a map of user IDs to member for quick lookup
 	memberMap := make(map[string]*discordgo.Member)
 	for _, member := range guild.Members {
-		memberMap[member.User.ID] = member
+		if member != nil && member.User != nil {
+			memberMap[member.User.ID] = member
+		}
 	}
 
 	for cursor.Next(context.Background()) {
@@ -180,7 +182,7 @@ func (c *MongoClient) HandleIfExpiredClock(s *discordgo.Session, userId, roleId 
 	var discordMember *discordgo.Member
 	hasRole := false
 	for _, member := range guild.Members {
-		if member.User.ID == userId {
+		if member != nil && member.User != nil && member.User.ID == userId {
 			discordMember = member
 			break
 		}
